@@ -5,17 +5,21 @@ using Telegram.Bot.Types;
 
 namespace Birthday.Bot.Services;
 
-public class TelegramHostedService(ITelegramBotClient botClient, ITelegramBotService telegramBotService) : IHostedService
+public class TelegramHostedService(
+	ITelegramBotClient botClient,
+	ITelegramBotService telegramBotService,
+	MongoDatabaseService mongoDatabaseService) : IHostedService
 {
-	public Task StartAsync(CancellationToken cancellationToken)
+	public async Task StartAsync(CancellationToken cancellationToken)
 	{
+		await mongoDatabaseService.SessionStateProvider.EnsureIndexesAsync();
+		// await telegramBotService.UpdateBotCommandsAsync(cancellationToken); // It works btw
+		
 		botClient.StartReceiving(
 			HandleUpdateAsync,
 			HandleErrorAsync,
 			null,
-			cancellationToken
-			);
-		return Task.CompletedTask;
+			cancellationToken);
 	}
 	
 	public Task StopAsync(CancellationToken cancellationToken)

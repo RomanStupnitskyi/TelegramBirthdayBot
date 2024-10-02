@@ -26,8 +26,10 @@ internal static class Program
 			{
 				var configuration = hostContext.Configuration;
 				var telegramProperties = configuration.GetSection("TelegramProperties").Get<TelegramProperties>();
+				var mongoProperties = configuration.GetSection("MongoProperties").Get<MongoProperties>();
 
-				services.AddSingleton<ITelegramBotClient>(_ => new TelegramBotClient(telegramProperties!.Token));
+				services.AddSingleton<MongoDatabaseService>(_ => new MongoDatabaseService(mongoProperties?.ConnectionString ?? ""));
+				services.AddSingleton<ITelegramBotClient>(_ => new TelegramBotClient(telegramProperties?.Token ?? ""));
 				services.AddSingleton<ITelegramBotService, TelegramBotService>();
 				services.AddHostedService<TelegramHostedService>();
 			});
@@ -36,4 +38,9 @@ internal static class Program
 internal class TelegramProperties
 {
 	public required string Token { get; init; }
+}
+
+internal class MongoProperties
+{
+	public required string ConnectionString { get; init; }
 }
