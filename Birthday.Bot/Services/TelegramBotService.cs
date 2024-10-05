@@ -11,9 +11,9 @@ namespace Birthday.Bot.Services;
 
 public interface ITelegramBotService
 {
-	public List<IListener> OnMessage { get; init; }
-	public List<IListener> OnInlineQuery { get; init; }
-	public List<IListener> OnCallbackQuery { get; init; }
+	public List<IHandler> OnMessage { get; init; }
+	public List<IHandler> OnInlineQuery { get; init; }
+	public List<IHandler> OnCallbackQuery { get; init; }
 	public List<ICommand> Commands { get; init; }
 	Task HandleUpdateAsync(Update update, CancellationToken cancellationToken);
 	Task UpdateBotCommandsAsync(CancellationToken cancellationToken);
@@ -22,16 +22,16 @@ public interface ITelegramBotService
 public class TelegramBotService : ITelegramBotService
 {
 	private readonly ITelegramBotClient _telegramBotClient;
-	public List<IListener> OnMessage { get; init; }
-	public List<IListener> OnInlineQuery { get; init; }
-	public List<IListener> OnCallbackQuery { get; init; }
+	public List<IHandler> OnMessage { get; init; }
+	public List<IHandler> OnInlineQuery { get; init; }
+	public List<IHandler> OnCallbackQuery { get; init; }
 	public List<ICommand> Commands { get; init; }
 	
 	public TelegramBotService(
 		ITelegramBotClient telegramBotClient,
 		MongoDatabaseService mongoDatabaseService,
-		List<IListener>? onInlineQuery = null,
-		List<IListener>? onCallbackQuery = null)
+		List<IHandler>? onInlineQuery = null,
+		List<IHandler>? onCallbackQuery = null)
 	{
 		_telegramBotClient = telegramBotClient;
 		OnInlineQuery = onInlineQuery ?? [];
@@ -44,7 +44,7 @@ public class TelegramBotService : ITelegramBotService
 		];
 		OnMessage = [
 			new SessionHandler(Commands, mongoDatabaseService.SessionStateProvider),
-			new CommandsHandler(Commands)
+			new CommandsHandler(telegramBotClient, Commands)
 		];
 	}
 

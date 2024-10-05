@@ -6,8 +6,8 @@ using Birthday.Bot.MongoProviders;
 
 namespace Birthday.Bot.Handlers;
 
-[Listener("SessionHandler")]
-public class SessionHandler(List<ICommand> commands, SessionStateProvider sessionStateProvider) : IListener
+[Handler("SessionHandler")]
+public class SessionHandler(List<ICommand> commands, SessionStateProvider sessionStateProvider) : IHandler
 {
 	public async Task RunAsync(Update update, CancellationToken cancellationToken)
 	{

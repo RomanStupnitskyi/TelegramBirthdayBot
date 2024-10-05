@@ -2,7 +2,7 @@
 
 namespace Birthday.Bot.Abstracts;
 
-public interface IListener
+public interface IHandler
 {
 	Task RunAsync(Update update, CancellationToken cancellationToken);
 }

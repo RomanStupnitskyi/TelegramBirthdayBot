@@ -6,7 +6,7 @@ namespace Birthday.Bot.MongoProviders;
 
 public class UserProvider(IMongoDatabase database) : BaseMongoProvider<UserDto>("Users", database)
 {
-	public async Task<UserDto> GetUserByIdAsync(long userId)
+	public async Task<UserDto> GetUserByIdAsync(long? userId)
 	{
 		return await Collection.Find(u => u.UserId == userId).FirstOrDefaultAsync();
 	}
