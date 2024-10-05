@@ -3,10 +3,10 @@ using Birthday.Bot.Attributes;
 using Telegram.Bot.Types;
 using System.Reflection;
 
-namespace Birthday.Bot.Listeners;
+namespace Birthday.Bot.Handlers;
 
 [Listener("Message")]
-public class MessageListener(List<ICommand> commands) : IListener
+public class CommandsHandler(List<ICommand> commands) : IListener
 {
 	public async Task RunAsync(Update update, CancellationToken cancellationToken)
 	{

@@ -1,5 +1,11 @@
-﻿namespace Birthday.Bot.MongoProviders.Dto;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 
-public record SessionStateDto(long userId, string waitingFor, bool runCommandAfterWait, string commandName, DateTime createdAt)
+namespace Birthday.Bot.MongoProviders.Dto;
+
+public record SessionStateDto(long UserId, string? State, bool RunCommandAfterWait, string CommandName, DateTime CreatedAt)
 {
+	public string? State { get; set; } = State;
+	public ObjectId? _id { get; init; } = ObjectId.GenerateNewId();
 }

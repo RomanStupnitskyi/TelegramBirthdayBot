@@ -12,8 +12,8 @@ public class TelegramHostedService(
 {
 	public async Task StartAsync(CancellationToken cancellationToken)
 	{
-		await mongoDatabaseService.SessionStateProvider.EnsureIndexesAsync();
-		// await telegramBotService.UpdateBotCommandsAsync(cancellationToken); // It works btw
+		await mongoDatabaseService.SessionStateProvider.EnsureIndexesAsync(cancellationToken);
+		await telegramBotService.UpdateBotCommandsAsync(cancellationToken); // It works btw
 		
 		botClient.StartReceiving(
 			HandleUpdateAsync,

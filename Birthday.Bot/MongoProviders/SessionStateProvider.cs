@@ -1,28 +1,37 @@
 ﻿using Birthday.Bot.Abstracts;
 using Birthday.Bot.MongoProviders.Dto;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 
 namespace Birthday.Bot.MongoProviders;
 
 public class SessionStateProvider(IMongoDatabase database) : BaseMongoProvider<SessionStateDto>("SessionStates", database)
 {
-	public async Task EnsureIndexesAsync()
+	public async Task EnsureIndexesAsync(CancellationToken cancellationToken)
 	{
-		await CreateIndexIfNotExistsAsync("AutoDelete", "createdAt", TimeSpan.FromMinutes(2));
+		await CreateIndexIfNotExistsAsync(
+			"AutoDelete",
+			"CreatedAt",
+			TimeSpan.FromMinutes(2),
+			cancellationToken);
 	}
 	
 	public async Task<SessionStateDto> GetSessionStateByIdAsync(long userId)
 	{
-		return await GetDocumentAsync(x => x.userId == userId);
+		return await GetDocumentAsync(x => x.UserId == userId);
 	}
 	
-	public async Task UpdateSessionByIdStateAsync(long userId, SessionStateDto updatedSessionState)
+	public async Task UpdateSessionStateByIdAsync(long userId, SessionStateDto updatedSessionState, CancellationToken cancellationToken)
 	{
-		await UpdateUserAsync(x => x.userId == userId, updatedSessionState);
+		Console.WriteLine($"Updating session state for user {userId} to {JsonConvert.SerializeObject(updatedSessionState)}");
+		await UpdateUserAsync(
+			x => x.UserId == userId,
+			updatedSessionState,
+			cancellationToken);
 	}
 	
-	public async Task DeleteSessionStateByIdAsync(long userId)
+	public async Task DeleteSessionStateByIdAsync(long userId, CancellationToken cancellationToken)
 	{
-		await DeleteUserAsync(x => x.userId == userId);
+		await DeleteUserAsync(x => x.UserId == userId, cancellationToken);
 	}
 }

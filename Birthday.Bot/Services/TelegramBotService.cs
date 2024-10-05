@@ -1,6 +1,6 @@
 ﻿using Birthday.Bot.Abstracts;
 using Birthday.Bot.Commands;
-using Birthday.Bot.Listeners;
+using Birthday.Bot.Handlers;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -27,14 +27,25 @@ public class TelegramBotService : ITelegramBotService
 	public List<IListener> OnCallbackQuery { get; init; }
 	public List<ICommand> Commands { get; init; }
 	
-	public TelegramBotService(ITelegramBotClient telegramBotClient, List<IListener>? onInlineQuery = null, List<IListener>? onCallbackQuery = null)
+	public TelegramBotService(
+		ITelegramBotClient telegramBotClient,
+		MongoDatabaseService mongoDatabaseService,
+		List<IListener>? onInlineQuery = null,
+		List<IListener>? onCallbackQuery = null)
 	{
 		_telegramBotClient = telegramBotClient;
 		OnInlineQuery = onInlineQuery ?? [];
 		OnCallbackQuery = onCallbackQuery ?? [];
 
-		Commands = [ new StartCommand(telegramBotClient) ];
-		OnMessage = [ new MessageListener(Commands) ];
+		Commands = [
+			new StartCommand(telegramBotClient),
+			new BirthdayCommand(telegramBotClient, mongoDatabaseService.UserProvider, mongoDatabaseService.SessionStateProvider),
+			new ShowBirthdayCommand(telegramBotClient, mongoDatabaseService.UserProvider)
+		];
+		OnMessage = [
+			new SessionHandler(Commands, mongoDatabaseService.SessionStateProvider),
+			new CommandsHandler(Commands)
+		];
 	}
 
 	public async Task HandleUpdateAsync(Update update, CancellationToken cancellationToken)

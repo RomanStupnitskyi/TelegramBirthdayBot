@@ -8,9 +8,9 @@ public class BaseMongoProvider<T>(string collectionName, IMongoDatabase database
 {
 	protected readonly IMongoCollection<T> Collection = database.GetCollection<T>(collectionName);
 	
-	public async Task CreateIndexIfNotExistsAsync(string indexName, string fieldName, TimeSpan expireAfterDelay)
+	public async Task CreateIndexIfNotExistsAsync(string indexName, string fieldName, TimeSpan expireAfterDelay, CancellationToken cancellationToken)
 	{
-		if ((await Collection.Indexes.ListAsync()).ToList().Any(index => index["name"] == indexName))
+		if ((await Collection.Indexes.ListAsync(cancellationToken)).ToList(cancellationToken: cancellationToken).Any(index => index["name"] == indexName))
 			return;
 		
 		var indexKeys = Builders<T>.IndexKeys.Ascending(fieldName);
@@ -21,7 +21,7 @@ public class BaseMongoProvider<T>(string collectionName, IMongoDatabase database
 		};
 
 		var indexModel = new CreateIndexModel<T>(indexKeys, indexOptions);
-		await Collection.Indexes.CreateOneAsync(indexModel);
+		await Collection.Indexes.CreateOneAsync(indexModel, cancellationToken: cancellationToken);
 	}
 	
 	public async Task<T> GetDocumentAsync(Expression<Func<T, bool>> where)
@@ -29,23 +29,23 @@ public class BaseMongoProvider<T>(string collectionName, IMongoDatabase database
 		return await Collection.Find(where).FirstOrDefaultAsync();
 	}
 	
-	public async Task<IEnumerable<T>> GetDocumentsAsync(Expression<Func<T, bool>> where)
+	public async Task<IEnumerable<T>> GetDocumentsAsync(Expression<Func<T, bool>> where, CancellationToken cancellationToken)
 	{
-		return await Collection.Find(where).ToListAsync();
+		return await Collection.Find(where).ToListAsync(cancellationToken: cancellationToken);
 	}
 	
-	public async Task AddDocumentAsync(T document)
+	public async Task AddDocumentAsync(T document, CancellationToken cancellationToken)
 	{
-		await Collection.InsertOneAsync(document);
+		await Collection.InsertOneAsync(document, cancellationToken: cancellationToken);
 	}
 	
-	public async Task<ReplaceOneResult> UpdateUserAsync(Expression<Func<T, bool>> where, T updatedUser)
+	public async Task<ReplaceOneResult> UpdateUserAsync(Expression<Func<T, bool>> where, T updatedUser, CancellationToken cancellationToken)
 	{
-		return await Collection.ReplaceOneAsync(where, updatedUser);
+		return await Collection.ReplaceOneAsync(where, updatedUser, cancellationToken: cancellationToken);
 	}
 	
-	public async Task<DeleteResult> DeleteUserAsync(Expression<Func<T, bool>> where)
+	public async Task<DeleteResult> DeleteUserAsync(Expression<Func<T, bool>> where, CancellationToken cancellationToken)
 	{
-		return await Collection.DeleteOneAsync(where);
+		return await Collection.DeleteOneAsync(where, cancellationToken);
 	}
 }
